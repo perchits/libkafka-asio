@@ -333,6 +333,8 @@ inline void ConnectionServiceImpl::HandleAsyncConnect(
   else
   {
     connection_state_ = kConnectionStateConnected;
+    read_state_ = kTxStateIdle;
+    write_state_ = kTxStateIdle;
     connect_deadline_.cancel();
   }
   io_service_.post(boost::bind(handler, error));
