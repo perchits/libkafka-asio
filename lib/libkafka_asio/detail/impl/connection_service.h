@@ -234,6 +234,7 @@ inline void ConnectionServiceImpl::EnqueueResponse(
   else
   {
     read_queue_.push_back(item);
+    NextResponse();
   }
 }
 
@@ -263,8 +264,14 @@ inline void ConnectionServiceImpl::NextRequest()
 
 inline void ConnectionServiceImpl::NextResponse()
 {
-  if (read_state_ == kTxStateBusy || read_queue_.empty())
+  if (read_queue_.empty())
   {
+    return;
+  }
+  if (read_state_ != kTxStateIdle)
+  {
+    io_service_.post(
+      boost::bind(&ConnectionServiceImpl::NextResponse, shared_from_this()));
     return;
   }
   QueueItem& item = read_queue_.front();
